@@ -178,7 +178,7 @@ parseXmlNode = block $ do
   reservedOp "<"
   node <- identifier
   props <- many $ do
-    key <- identifier
+    key <- identifier <|> stringLiteral
     reservedOp "="
     value <- stringLiteral
     return (key, parseFvgString value)

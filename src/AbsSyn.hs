@@ -65,7 +65,7 @@ instance Show Expr where
       XmlNode tag props exprs -> parensIf (p > 0) $
         showString " <" . showString tag . showChar ' ' .
         showProps props . showString ">" .
-        flip (foldr id) (intersperse (showString "; ") (map shows exprs)) .
+        flip (foldr id) ({-intersperse (showString "; ")-} (map shows exprs)) .
         showString (" </"++tag++"> ")
       Let lhs rhs body ->
         showString "let " . showString lhs . showString " = " . shows rhs . showString " in " . shows body
