@@ -49,6 +49,7 @@ symbol = P.symbol lexer
 stringLiteral = P.stringLiteral lexer
 charLiteral = P.charLiteral lexer
 integer = P.integer lexer
+float = P.float lexer
 whiteSpace = P.whiteSpace lexer
 
 parseUpperName :: Parse String
@@ -146,6 +147,7 @@ parseLambda = do
 parseSingleExpr :: Parse Expr
 parseSingleExpr = checkIndent >> msum
   [ parseLitChar
+  , try parseLitFloat
   , parseLitInt
   , parseLitString
   , parseXmlNode
@@ -167,6 +169,9 @@ parseLitString = (LitString . parseFvgString) <$> stringLiteral
 
 parseLitInt :: Parse Expr
 parseLitInt = LitInt <$> integer
+
+parseLitFloat :: Parse Expr
+parseLitFloat = LitFloat <$> float
 
 parseXmlNode :: Parse Expr
 parseXmlNode = block $ do

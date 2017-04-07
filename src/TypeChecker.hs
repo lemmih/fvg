@@ -6,6 +6,39 @@ import Control.Monad.State.Strict
 import Data.Map (Map)
 import qualified Data.Map as Map
 import Data.List
+import Debug.Trace
+
+floatTy :: Type
+floatTy = TyCon "Float"
+
+intTy :: Type
+intTy = TyCon "Int"
+
+boolTy :: Type
+boolTy = TyCon "Bool"
+
+infixr 1 -->
+(-->) :: Type -> Type -> Type
+t1 --> t2 = TyFun t1 t2
+
+knownTypes :: [(String, Int)]
+knownTypes = [("Int",0), ("Char",0), ("String",0), ("Float", 0), ("Bool", 0)]
+
+knownFunctions :: [(String, Qual)]
+knownFunctions =
+  [ ("cos", [] :=> floatTy --> floatTy)
+  , ("sin", [] :=> floatTy --> floatTy)
+  , ("pi",  [] :=> floatTy)
+  , ("itof", [] :=> intTy --> floatTy)
+  , ("True", [] :=> boolTy)
+  , ("False", [] :=> boolTy)
+  , ("eqI", [] :=> intTy --> intTy --> boolTy)
+  , ("ltI", [] :=> intTy --> intTy --> boolTy)
+  , ("plusI", [] :=> intTy --> intTy --> intTy)
+  , ("plus", [] :=> floatTy --> floatTy --> floatTy)
+  , ("times", [] :=> floatTy --> floatTy --> floatTy)
+  , ("div", [] :=> floatTy --> floatTy --> floatTy)
+  ]
 
 -- Check kinds
 -- check top binds
@@ -15,14 +48,15 @@ typecheck m = evalState action env `seq` m
   where
     env = Env
       { envUnique = 0
-      , envKinds = Map.fromList [("Int",0), ("Char",0), ("String",0)]
-      , envScope = Map.empty
+      , envKinds = Map.fromList knownTypes
+      , envScope = Map.fromList knownFunctions
       , envSubst = Map.empty
       }
     action = do
       mapM_ checkDataDecl (modDataDecls m)
       mapM_ checkFunDecl (modFunDecls m)
 
+infixr 0 :=>
 data Qual = [TyVar] :=> Type
   deriving (Eq, Show)
 
@@ -61,6 +95,7 @@ withType name ty action = do
 
 newSubst :: TyVar -> Type -> M ()
 newSubst tyvar ty =
+  -- trace ("New subst: " ++ show tyvar ++ " -> " ++ show ty)
   modify $ \st -> st
     { envSubst = Map.insert tyvar ty (envSubst st) }
 
@@ -99,7 +134,7 @@ replace lst ty =
 normalize :: Qual -> Qual
 normalize (tyvars :=> ty) = newVars :=> replace subst ty
   where
-    newVars = map show [0 .. length tyvars]
+    newVars = map show [1 .. length tyvars]
     subst = zip tyvars newVars
 
 qualFreeTyVars :: Qual -> [TyVar]
@@ -115,8 +150,10 @@ generalize ty = do
 -- Lookup and instantiate type.
 freshType :: String -> M Type
 freshType ident = do
-  qual <- gets $ \st -> envScope st Map.! ident
+  qual <- gets $ \st -> Map.findWithDefault err ident (envScope st)
   instantiate qual
+  where
+    err = error $ "Ident not found: " ++ ident
 
 -- Apply substitutions
 apply :: Type -> M Type
@@ -124,7 +161,10 @@ apply ty = do
     s <- gets envSubst
     return $ worker s ty
   where
-    worker s (TyVar var) = Map.findWithDefault (TyVar var) var s
+    worker s (TyVar var) =
+      case Map.lookup var s of
+        Nothing -> TyVar var
+        Just newTy -> worker s newTy
     worker s (TyCon con) = TyCon con
     worker s (TyFun t1 t2) = TyFun (worker s t1) (worker s t2)
     worker s (TyApp t1 t2) = TyApp (worker s t1) (worker s t2)
@@ -148,11 +188,15 @@ mgu t1 t2 = error $ "Unification failure: " ++ show (t1,t2)
 varBind :: TyVar -> Type -> M ()
 varBind u t
   | t == TyVar u  = return ()
-  | u `elem` tv t = error "occurs check failed"
+  | u `elem` tv t = error $ "occurs check failed: " ++ show (u, t)
   | otherwise     = newSubst u t
 
 unify :: Type -> Type -> M ()
-unify t1 t2 = join $ liftM2 mgu (apply t1) (apply t2)
+unify t1 t2 = do
+  -- t1' <- apply t1
+  -- t2' <- apply t2
+  -- trace ("Unifying: " ++ show (t1', t2')) $ mgu t1' t2'
+  join $ liftM2 mgu (apply t1) (apply t2)
 
 checkDataDecl :: DataDecl -> M ()
 checkDataDecl (DataDecl name args cons) = do
@@ -162,7 +206,7 @@ checkDataDecl (DataDecl name args cons) = do
 
 checkConstructor :: Type -> DataConstructor -> M ()
 checkConstructor retType (DataConstructor name fields) = do
-  insertType name (simpleQual $ foldl TyApp retType fields)
+  insertType name (simpleQual $ foldr TyFun retType fields)
   mapM_ checkType fields
 
 -- Check validity of type and return it's arity.
@@ -194,15 +238,17 @@ checkFunDecl (FunDecl name ty args body) = do
   fnInstTy <- instantiate qual
   unify fnInstTy exprTy
 
+  exprTy' <- apply exprTy
   genTy <- generalize =<< apply exprTy
   when (normalize (simpleQual ty) /= normalize genTy) $
-    error $ "Type error: " ++ show (normalize (simpleQual ty), normalize genTy, genTy, exprTy)
+    error $ "Type error: " ++ show (normalize (simpleQual ty)) ++ "\n" ++ show (normalize genTy) ++ "\n" ++ show exprTy' ++ "\n" ++ show exprTy
 
 inferType :: Expr -> M Type
 inferType expr =
   case expr of
     LitChar{}   -> pure $ TyCon "Char"
-    LitInt{}    -> pure $ TyCon "Int"
+    LitInt{}    -> pure intTy
+    LitFloat{}  -> pure floatTy
     LitString{} -> pure $ TyCon "String"
     XmlNode _tag _props exprs -> do
       let t = TyCon "Svg"

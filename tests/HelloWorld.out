@@ -1,1 +1,1 @@
-XmlNode "svg" [] [XmlNode "text" [] [LitString [TextBlock "Hello World"]]]
+ <svg > <text >"Hello World" </text>  </svg> 

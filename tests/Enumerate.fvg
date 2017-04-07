@@ -1,0 +1,10 @@
+data List a = Nil | Cons a (List a)
+
+enumerate : Int -> Int -> (Int -> a) -> List a
+enumerate n max fn =
+  case ltI n max of
+    False -> Nil
+    True -> Cons (fn n) (enumerate (plusI n 1) max fn)
+
+main : List Int
+main = enumerate 0 10 (\x -> x) -- mkCoords 10 10.0

@@ -1,0 +1,36 @@
+data List a = Nil | Cons a (List a)
+data Tuple a b = Tuple a b
+
+enumerate : Int -> Int -> (Int -> a) -> List a
+enumerate n max fn =
+  case ltI n max of
+    False -> Nil
+    True -> Cons (fn n) (enumerate (plusI n 1) max fn)
+
+mkCoords : Int -> Float -> List (Tuple Float Float)
+mkCoords n radius =
+  let width = plus (times radius 2.0) 50.0 in
+  enumerate 0 n (\i ->
+    let angle = times (div (itof i) (div (itof n) 2.0)) pi in
+    let x = plus (times radius (cos angle)) (div width 2.0) in
+    let y = plus (times radius (sin angle)) (div width 2.0) in
+    Tuple x y
+   )
+
+for : List a -> (a -> b) -> List b
+for lst fn =
+  case lst of
+    Nil -> Nil
+    Cons x xs -> Cons (fn x) (for xs fn)
+
+main : Svg
+main =
+  let radius = 200.0 in
+  let size = plus (times radius 2.0) 50.0 in
+  <svg width="{{size}}" height="{{size}}">
+    for (mkCoords 10 radius) (\tuple ->
+      case tuple of
+        Tuple x y ->
+          <circle r="5" cx="{{x}}" cy="{{y}}"> </circle>
+      )
+  </svg>
