@@ -8,7 +8,7 @@ map fn lst =
 
 main : Svg
 main =
-  let x = map (\x -> plusI x 1) (Cons 10 (Cons 20 Nil)) in
+  let x = map (plusI 1) (Cons 10 (Cons 20 Nil)) in
   <svg>
-    <text>"Hello World: {{x}}"</text>
+    <text "font-size"="35">"Hello World: {{x}}"</text>
   </svg>
