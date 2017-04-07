@@ -1,12 +1,11 @@
-module TypeChecker where
+module TypeChecker (typecheck) where
 
-import AbsSyn
+import           AbsSyn
 
-import Control.Monad.State.Strict
-import Data.Map (Map)
-import qualified Data.Map as Map
-import Data.List
-import Debug.Trace
+import           Control.Monad.State.Strict
+import           Data.List
+import           Data.Map                   (Map)
+import qualified Data.Map                   as Map
 
 floatTy :: Type
 floatTy = TyCon "Float"
@@ -62,9 +61,9 @@ data Qual = [TyVar] :=> Type
 
 data Env = Env
   { envUnique :: Int
-  , envKinds :: Map String Int -- Arity of types
-  , envScope :: Map String Qual
-  , envSubst :: Map TyVar Type
+  , envKinds  :: Map String Int -- Arity of types
+  , envScope  :: Map String Qual
+  , envSubst  :: Map TyVar Type
   }
 type M a = State Env a
 
@@ -95,7 +94,6 @@ withType name ty action = do
 
 newSubst :: TyVar -> Type -> M ()
 newSubst tyvar ty =
-  -- trace ("New subst: " ++ show tyvar ++ " -> " ++ show ty)
   modify $ \st -> st
     { envSubst = Map.insert tyvar ty (envSubst st) }
 
@@ -192,11 +190,7 @@ varBind u t
   | otherwise     = newSubst u t
 
 unify :: Type -> Type -> M ()
-unify t1 t2 = do
-  -- t1' <- apply t1
-  -- t2' <- apply t2
-  -- trace ("Unifying: " ++ show (t1', t2')) $ mgu t1' t2'
-  join $ liftM2 mgu (apply t1) (apply t2)
+unify t1 t2 = join $ liftM2 mgu (apply t1) (apply t2)
 
 checkDataDecl :: DataDecl -> M ()
 checkDataDecl (DataDecl name args cons) = do

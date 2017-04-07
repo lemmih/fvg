@@ -1,12 +1,12 @@
-module Parser where
+module Parser (runParse, parseModule) where
 
-import AbsSyn
+import           AbsSyn
 
-import Control.Monad
-import Data.Char
-import Text.Parsec
-import Text.Parsec.Language
-import qualified Text.Parsec.Token as P
+import           Control.Monad
+import           Data.Char
+import           Text.Parsec
+import           Text.Parsec.Language
+import qualified Text.Parsec.Token    as P
 
 type Parse a = Parsec String Int a
 runParse :: Parse a -> String -> a

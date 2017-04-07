@@ -1,15 +1,15 @@
 {-# LANGUAGE TupleSections #-}
 module Interpreter (runScript) where
 
-import Control.Monad.Reader
-import Data.Map (Map)
-import qualified Data.Map as Map
-import Text.Parsec
-import Debug.Trace
+import           Control.Monad.Reader
+import           Data.Map             (Map)
+import qualified Data.Map             as Map
+import           Debug.Trace
+import           Text.Parsec
 
-import AbsSyn
-import Parser
-import TypeChecker
+import           AbsSyn
+import           Parser
+import           TypeChecker
 
 runScript :: String -> Expr
 runScript inp = evaluate (typecheck (runParse (parseModule <* eof) inp))
