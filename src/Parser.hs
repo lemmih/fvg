@@ -91,9 +91,12 @@ parseTyVar = parseLowerName
 
 parseType :: Parse Type
 parseType =
-  foldl TyFun
-    <$> parseBType
-    <*> many (symbol "->" *> parseBType)
+  fold <$> parseBType
+       <*> many (symbol "->" *> parseBType)
+  where
+    fold t [] = t
+    fold t (x:xs) = TyFun t (fold x xs)
+
 
 parseBType :: Parse Type
 parseBType = foldl TyApp <$> parseAType <*> many parseAType

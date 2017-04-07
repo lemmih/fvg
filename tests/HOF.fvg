@@ -1,0 +1,8 @@
+apply : (a -> b) -> (a -> b)
+apply f a = f a
+
+dot : (b -> c) -> (a -> b) -> a -> c
+dot f g x = f (g x)
+
+main : Int
+main = 0
