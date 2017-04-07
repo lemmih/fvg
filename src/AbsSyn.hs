@@ -61,7 +61,7 @@ instance Show Expr where
       LitChar c -> showsPrec p c
       LitInt i  -> showsPrec p i
       LitFloat f -> showsPrec p f
-      LitString s -> showSvgString s
+      LitString s -> showString (showSvgString s)
       XmlNode tag props exprs -> parensIf (p > 0) $
         showString " <" . showString tag . showChar ' ' .
         showProps props . showString ">" .
@@ -77,9 +77,9 @@ instance Show Expr where
         showChar '\\' . showString bind . showString " -> " . shows body
 
 showProps [] = id
-showProps ((k,v):xs) = showString k . showChar '=' . showSvgString v . showChar ' ' . showProps xs
+showProps ((k,v):xs) = showString k . showChar '=' . shows (showSvgString v) . showChar ' ' . showProps xs
 
-showSvgString = shows . concatMap toString
+showSvgString = concatMap toString
   where
     toString (TextBlock txt) = txt
     toString (VariableBlock var) = "{{" ++ var ++ "}}"
