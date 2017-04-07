@@ -4,5 +4,13 @@ apply f a = f a
 dot : (b -> c) -> (a -> b) -> a -> c
 dot f g x = f (g x)
 
-main : Int
-main = 0
+main : Svg
+main =
+  <svg>
+    <text "font-size"="35">
+      apply (plusI 1) 2
+    </text> ;
+    <text y="35" "font-size"="35">
+      dot (plusI 1) (plusI 10) 5
+    </text>
+  </svg>
