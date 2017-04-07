@@ -1,0 +1,14 @@
+data List a = Nil | Cons a (List a)
+
+map : (a -> b) -> List a -> List b
+map fn lst =
+  case lst of
+    Nil -> Nil
+    Cons x xs -> Cons (fn x) (map fn xs)
+
+main : Svg
+main =
+  let x = map (\x -> plus x 1) (Cons 10 (Cons 20 Nil)) in
+  <svg>
+    <text>"Hello World: {{x}}"</text>
+  </svg>

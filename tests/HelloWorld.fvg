@@ -1,0 +1,5 @@
+main : Svg
+main =
+  <svg>
+    <text>"Hello World"</text>
+  </svg>

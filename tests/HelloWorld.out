@@ -1,0 +1,1 @@
+XmlNode "svg" [] [XmlNode "text" [] [LitString [TextBlock "Hello World"]]]

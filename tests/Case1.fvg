@@ -1,0 +1,7 @@
+data Bool = True | False
+
+main : Int
+main =
+  case True of
+    True -> 1
+    False -> 0
