@@ -1,1 +1,1 @@
- <svg > <text font-size="35" >Hello World: Cons 11 (Cons 21 Nil) </text>  </svg> 
+ <svg > <text font-size="35" >List output: </text>  <text y="40" font-size="35" >Cons 11 (Cons 21 Nil) </text>  </svg> 

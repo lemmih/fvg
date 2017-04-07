@@ -10,5 +10,6 @@ main : Svg
 main =
   let x = map (plusI 1) (Cons 10 (Cons 20 Nil)) in
   <svg>
-    <text "font-size"="35">"Hello World: {{x}}"</text>
+    <text "font-size"="35">"List output:"</text> ;
+    <text y="40" "font-size"="35">"{{x}}"</text>
   </svg>
