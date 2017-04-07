@@ -286,36 +286,3 @@ inferType expr =
             withTypes (zip args (map ([] :=>) argTypes)) $
               unify retTy =<< inferType branch
       return retTy
-
-
-{-
-
-data Tuple a b = Tuple a b
-
-let x = Tuple 10
-in x 20
-
-instantiate: (new_a -> new_b -> Tuple new_a new_b)
-app:
-  split: (new_a) + (new_b -> Tuple new_a new_b)
-  unify: new_a + Int
-out:
-  type: new_b -> Tuple new_a new_b
-  subst: new_a = Int
-  generalize: forall b. b -> Tuple Int b
-
-Tuple :: forall a b. a -> b -> Tuple a b
-x :: forall a. a -> Tuple Int a
-
-
-
-
-
-
-fn :: a -> Tuple a Int
-fn x = let y = Tuple x
-       in y 10
-
-y :: forall new_b. new_b -> Tuple a new_b
-
--}
