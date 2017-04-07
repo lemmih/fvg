@@ -22,7 +22,7 @@ main = do
       expr <- evaluate (runScript inp)
       writeFile outFile (show expr)
     _ -> do
-      files <- listDirectory "."
+      files <- getDirectoryContents "."
       forM_ (sort files) $ \file ->
         when (takeExtension file == ".fvg") $ do
           inp <- readFile file
