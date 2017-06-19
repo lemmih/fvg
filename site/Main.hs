@@ -46,7 +46,7 @@ codeBox setText = divClass "code-box" $ do
     t <- fmap value $
          textArea $ def
                   & textAreaConfig_attributes .~
-                    constDyn ("style" =: "width:500px;height:400px;")
+                    constDyn ("style" =: "width:500px;height:500px;")
                   & textAreaConfig_setValue .~ setText
                   & textAreaConfig_initialValue .~ code0
 
@@ -68,7 +68,7 @@ fvgView e = do
               (T.pack . show <$> fmapMaybe hush (updated e))
     elDynAttr "iframe" (iframeAttrs <$> srcdoc) blank
     where iframeAttrs sd = "width"  =: "500"
-                        <> "height" =: "400"
+                        <> "height" =: "500"
                         <> "srcdoc" =: sd
 
 examplesPicker :: MonadWidget t m => m (Event t T.Text)
